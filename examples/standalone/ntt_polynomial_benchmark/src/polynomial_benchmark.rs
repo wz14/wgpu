@@ -27,11 +27,11 @@ impl BigInt260 {
         Self { components }
     }
 
-    fn from_components(components: [u64; 5]) -> Self {
+    pub fn from_components(components: [u64; 5]) -> Self {
         Self { components }
     }
 
-    fn zero() -> Self {
+    pub fn zero() -> Self {
         Self { components: [0u64; 5] }
     }
 }
@@ -59,7 +59,7 @@ pub struct NTTPolynomialMultiplier {
 }
 
 impl NTTPolynomialMultiplier {
-    pub async fn new() -> Self {
+    pub async fn new() -> Result<Self, Box<dyn std::error::Error>> {
         // Initialize wgpu
         let instance = wgpu::Instance::new(&wgpu::InstanceDescriptor::default());
         
@@ -70,7 +70,7 @@ impl NTTPolynomialMultiplier {
                 compatible_surface: None,
             })
             .await
-            .expect("Failed to create adapter - this may be due to missing GPU drivers in the environment");
+            .map_err(|e| format!("Failed to create adapter: {}", e))?;
 
         println!("Running on: {:#?}", adapter.get_info());
 
@@ -94,7 +94,7 @@ impl NTTPolynomialMultiplier {
                 },
             )
             .await
-            .expect("Failed to create device");
+            .map_err(|e| format!("Failed to create device: {}", e))?;
 
         // Create shader modules
         let ntt_module = device.create_shader_module(wgpu::include_wgsl!("ntt_shaders.wgsl"));
@@ -173,14 +173,14 @@ impl NTTPolynomialMultiplier {
             cache: None,
         });
 
-        Self {
+        Ok(Self {
             device,
             queue,
             forward_ntt_pipeline,
             inverse_ntt_pipeline,
             pointwise_mul_pipeline,
             bind_group_layout,
-        }
+        })
     }
 
     pub fn multiply_polynomials(&self, poly_a: &[BigInt260], poly_b: &[BigInt260]) -> Vec<BigInt260> {
