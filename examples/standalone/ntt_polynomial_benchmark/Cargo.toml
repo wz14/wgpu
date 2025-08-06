@@ -1,0 +1,25 @@
+[package]
+name = "wgpu-example-ntt-polynomial-benchmark"
+edition = "2021"
+rust-version = "1.84"
+publish = false
+description = "Benchmark for polynomial multiplication under NTT-form using wgpu compute shaders"
+
+[[bin]]
+name = "ntt_benchmark"
+path = "src/main.rs"
+
+[dependencies]
+bytemuck = { version = "1.22.0", features = ["derive"] }
+env_logger = "0.11"
+pollster = "0.4"
+wgpu = "26.0.0"
+num-bigint = "0.4"
+num-traits = "0.2"
+criterion = "0.6"
+rand = "0.8"
+tokio = { version = "1.39", features = ["rt-multi-thread", "macros"] }
+
+[[bench]]
+name = "ntt_benchmark"
+harness = false
